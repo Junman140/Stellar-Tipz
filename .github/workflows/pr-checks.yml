@@ -1,0 +1,71 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  contract:
+    name: Contract Checks
+    if: |
+      contains(github.event.pull_request.labels.*.name, 'contract') ||
+      !contains(github.event.pull_request.labels.*.name, 'frontend-only')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            contracts/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('contracts/**/Cargo.lock') }}
+
+      - name: Formatting
+        run: cargo fmt -- --check
+
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+
+      - name: Tests
+        run: cargo test
+
+  frontend:
+    name: Frontend Checks
+    if: |
+      contains(github.event.pull_request.labels.*.name, 'frontend') ||
+      !contains(github.event.pull_request.labels.*.name, 'contract-only')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend-scaffold
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: frontend-scaffold/package-lock.json
+
+      - name: Install
+        run: npm ci --legacy-peer-deps
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build

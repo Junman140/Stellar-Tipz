@@ -1,0 +1,37 @@
+//! Custom error types for the Tipz contract.
+
+use soroban_sdk::contracterror;
+
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[repr(u32)]
+pub enum ContractError {
+    /// Contract has already been initialized
+    AlreadyInitialized = 1,
+    /// Contract has not been initialized yet
+    NotInitialized = 2,
+    /// Caller is not the contract admin
+    NotAdmin = 3,
+    /// Address already has a registered profile
+    AlreadyRegistered = 4,
+    /// Address does not have a registered profile
+    NotRegistered = 5,
+    /// Username is already taken by another profile
+    UsernameTaken = 6,
+    /// Username format is invalid (must be 3-32 chars, lowercase alphanumeric + underscore)
+    InvalidUsername = 7,
+    /// Display name is empty or exceeds 64 characters
+    InvalidDisplayName = 8,
+    /// Tip or withdrawal amount is invalid (must be > 0)
+    InvalidAmount = 9,
+    /// Insufficient balance for the requested withdrawal
+    InsufficientBalance = 10,
+    /// Cannot send a tip to your own profile
+    CannotTipSelf = 11,
+    /// Fee exceeds the maximum allowed (10%)
+    InvalidFee = 12,
+    /// Tip message exceeds 280 characters
+    MessageTooLong = 13,
+    /// Username not found in reverse lookup
+    NotFound = 14,
+}

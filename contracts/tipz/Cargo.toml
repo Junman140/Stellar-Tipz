@@ -1,0 +1,17 @@
+[package]
+name = "tipz-contract"
+version = "0.1.0"
+edition = "2021"
+description = "Stellar Tipz - Decentralized tipping smart contract on Soroban"
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = { workspace = true }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }
