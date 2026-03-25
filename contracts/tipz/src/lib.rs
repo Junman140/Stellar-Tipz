@@ -178,6 +178,7 @@ impl TipzContract {
             return Err(ContractError::NotRegistered);
         }
 
+        storage::extend_instance_ttl(&env);
         let mut profile = storage::get_profile(&env, &address);
         let score = credit::calculate_credit_score(&profile, env.ledger().timestamp());
         profile.credit_score = score;
@@ -250,5 +251,10 @@ impl TipzContract {
     pub fn get_stats(_env: Env) -> Result<ContractStats, ContractError> {
         // TODO: Implement in issue #23 - Contract Stats
         Err(ContractError::NotInitialized)
+    }
+
+    /// Extend the contract instance TTL manually (admin only).
+    pub fn bump_ttl(env: Env, caller: Address) -> Result<(), ContractError> {
+        admin::bump_ttl(&env, &caller)
     }
 }
