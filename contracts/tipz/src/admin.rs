@@ -144,8 +144,6 @@ pub fn bump_ttl(env: &Env, caller: &Address) -> Result<(), ContractError> {
 }
 
 /// Update the withdrawal fee in basis points (max 1000 = 10%). Admin only.
-///
-/// Emits a `FeeUpdated` event with `(old_bps, new_bps)`.
 pub fn set_fee(env: &Env, caller: &Address, fee_bps: u32) -> Result<(), ContractError> {
     storage::extend_instance_ttl(env);
     require_admin(env, caller)?;
@@ -159,8 +157,6 @@ pub fn set_fee(env: &Env, caller: &Address, fee_bps: u32) -> Result<(), Contract
 }
 
 /// Update the fee collector address. Admin only.
-///
-/// Emits a `FeeCollectorUpdated` event with the new collector address.
 pub fn set_fee_collector(
     env: &Env,
     caller: &Address,
@@ -174,8 +170,6 @@ pub fn set_fee_collector(
 }
 
 /// Transfer the admin role to a new address. Admin only.
-///
-/// Emits an `AdminChanged` event with `(old_admin, new_admin)`.
 pub fn set_admin(env: &Env, caller: &Address, new_admin: &Address) -> Result<(), ContractError> {
     storage::extend_instance_ttl(env);
     require_admin(env, caller)?;
