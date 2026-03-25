@@ -11,7 +11,7 @@
     "start": "vite",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/",
-    "prepare": "cd .. && husky frontend-scaffold/.husky"
+    "prepare": "husky"
   },
   "lint-staged": {
     "**/*.{ts,tsx}": [
