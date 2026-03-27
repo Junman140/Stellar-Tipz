@@ -13,6 +13,7 @@
 
 use soroban_sdk::{contracttype, Address, Env, String};
 
+use crate::errors::ContractError;
 use crate::types::Profile;
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -273,11 +274,16 @@ pub fn get_total_tips_volume(env: &Env) -> i128 {
 }
 
 /// Adds `amount` stroops to the lifetime tip volume.
-pub fn add_to_tips_volume(env: &Env, amount: i128) {
+pub fn add_to_tips_volume(env: &Env, amount: i128) -> Result<(), ContractError> {
     let volume = get_total_tips_volume(env);
+    // Security: fail closed on arithmetic overflow.
+    let next = volume
+        .checked_add(amount)
+        .ok_or(ContractError::OverflowError)?;
     env.storage()
         .instance()
-        .set(&DataKey::TotalTipsVolume, &(volume + amount));
+        .set(&DataKey::TotalTipsVolume, &next);
+    Ok(())
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -294,11 +300,14 @@ pub fn get_total_fees(env: &Env) -> i128 {
 
 /// Adds `fee` stroops to the lifetime fees collected.
 #[allow(dead_code)]
-pub fn add_to_fees(env: &Env, fee: i128) {
+pub fn add_to_fees(env: &Env, fee: i128) -> Result<(), ContractError> {
     let total = get_total_fees(env);
+    // Security: fail closed on arithmetic overflow.
+    let next = total.checked_add(fee).ok_or(ContractError::OverflowError)?;
     env.storage()
         .instance()
-        .set(&DataKey::TotalFeesCollected, &(total + fee));
+        .set(&DataKey::TotalFeesCollected, &next);
+    Ok(())
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -536,8 +545,8 @@ mod tests {
     fn add_to_tips_volume_accumulates() {
         let (env, id) = make_env();
         env.as_contract(&id, || {
-            add_to_tips_volume(&env, 1_000_000);
-            add_to_tips_volume(&env, 2_000_000);
+            add_to_tips_volume(&env, 1_000_000).unwrap();
+            add_to_tips_volume(&env, 2_000_000).unwrap();
             assert_eq!(get_total_tips_volume(&env), 3_000_000);
         });
     }
@@ -556,8 +565,8 @@ mod tests {
     fn add_to_fees_accumulates() {
         let (env, id) = make_env();
         env.as_contract(&id, || {
-            add_to_fees(&env, 500);
-            add_to_fees(&env, 300);
+            add_to_fees(&env, 500).unwrap();
+            add_to_fees(&env, 300).unwrap();
             assert_eq!(get_total_fees(&env), 800);
         });
     }

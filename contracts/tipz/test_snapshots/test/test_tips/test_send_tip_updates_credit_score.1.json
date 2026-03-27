@@ -536,7 +536,7 @@
                                     "symbol": "credit_score"
                                   },
                                   "val": {
-                                    "u32": 0
+                                    "u32": 50
                                   }
                                 },
                                 {

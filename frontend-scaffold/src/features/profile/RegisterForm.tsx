@@ -4,6 +4,11 @@ import Input from '@/components/ui/Input';
 import Textarea from '@/components/ui/Textarea';
 import Button from '@/components/ui/Button';
 import TransactionStatus from '@/components/shared/TransactionStatus';
+import {
+  validateBio,
+  validateDisplayName,
+  validateUsername,
+} from '@/helpers/validation';
 import { useContract } from '@/hooks';
 import { useToastStore } from '@/store/toastStore';
 import { ProfileFormData } from '@/types/profile';
@@ -18,22 +23,22 @@ interface FormErrors {
   xHandle?: string;
 }
 
-const USERNAME_RE = /^[a-z][a-z0-9_]{2,31}$/;
-
 function validate(data: ProfileFormData): FormErrors {
   const errors: FormErrors = {};
 
-  if (!USERNAME_RE.test(data.username)) {
-    errors.username =
-      'Username must be 3–32 chars, start with a letter, and use only lowercase letters, digits, or underscores.';
+  const usernameValidation = validateUsername(data.username);
+  if (!usernameValidation.valid) {
+    errors.username = usernameValidation.error;
   }
 
-  if (!data.displayName.trim() || data.displayName.length > 64) {
-    errors.displayName = 'Display name is required and must be 1–64 characters.';
+  const displayNameValidation = validateDisplayName(data.displayName);
+  if (!displayNameValidation.valid) {
+    errors.displayName = displayNameValidation.error;
   }
 
-  if (data.bio.length > 280) {
-    errors.bio = 'Bio must be 280 characters or fewer.';
+  const bioValidation = validateBio(data.bio);
+  if (!bioValidation.valid) {
+    errors.bio = bioValidation.error;
   }
 
   return errors;

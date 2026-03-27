@@ -12,6 +12,7 @@ import Card from "../../components/ui/Card";
 import { useProfile } from "../../hooks";
 import { mockProfile } from "../mockData";
 import ActivityFeed from "./ActivityFeed";
+import XHandleLink from "./XHandleLink";
 
 const ProfilePage: React.FC = () => {
   const { profile } = useProfile();
@@ -56,7 +57,7 @@ const ProfilePage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-4 text-sm font-bold text-gray-600">
             <span className="inline-flex items-center gap-2">
               <Sparkles size={16} />
-              @{activeProfile.xHandle}
+              <XHandleLink handle={activeProfile.xHandle} followers={activeProfile.xFollowers} />
             </span>
             <span className="inline-flex items-center gap-2">
               <CalendarDays size={16} />

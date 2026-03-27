@@ -2,11 +2,11 @@
 //!
 //! Handles creator withdrawals with fee deduction and token transfers.
 
-use soroban_sdk::{token, Address, Env};
+use soroban_sdk::{Address, Env};
 
 use crate::errors::ContractError;
 use crate::events;
-use crate::storage::{get_fee_bps, get_fee_collector, get_native_token, get_profile, has_profile, set_profile};
+use crate::storage::{get_fee_bps, get_fee_collector, get_profile, has_profile, set_profile};
 use crate::token as xlm;
 
 /// Withdraws accumulated tips for a creator, deducting the configured fee.
@@ -27,6 +27,7 @@ use crate::token as xlm;
 /// * `NotRegistered` - Caller is not a registered creator
 /// * `InvalidAmount` - Amount is zero or negative
 /// * `InsufficientBalance` - Creator has insufficient balance
+#[allow(dead_code)]
 pub fn withdraw_tips(env: &Env, caller: &Address, amount: i128) -> Result<(), ContractError> {
     // Validate contract is initialized
     if !crate::storage::is_initialized(env) {
@@ -59,10 +60,6 @@ pub fn withdraw_tips(env: &Env, caller: &Address, amount: i128) -> Result<(), Co
     profile.balance -= amount;
     set_profile(env, &profile);
 
-    // Get token client
-    let sac_address = get_native_token(env);
-    let token_client = token::TokenClient::new(env, &sac_address);
-
     // Transfer net amount to creator
     xlm::transfer_xlm(env, &env.current_contract_address(), caller, net_amount)?;
 
@@ -73,7 +70,7 @@ pub fn withdraw_tips(env: &Env, caller: &Address, amount: i128) -> Result<(), Co
     }
 
     // Update total fees collected
-    crate::storage::add_to_fees(env, fee);
+    crate::storage::add_to_fees(env, fee)?;
 
     // Emit withdrawal event
     events::emit_tips_withdrawn(env, caller, amount, fee);

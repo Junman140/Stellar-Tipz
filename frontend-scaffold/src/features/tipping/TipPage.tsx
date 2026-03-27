@@ -9,10 +9,10 @@ import TransactionStatus from "../../components/shared/TransactionStatus";
 import Avatar from "../../components/ui/Avatar";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
-import Input from "../../components/ui/Input";
 import Textarea from "../../components/ui/Textarea";
 import { useTipz, useWallet } from "../../hooks";
 import { mockProfile, mockTips } from "../mockData";
+import TipAmountInput from "./TipAmountInput";
 
 const TipPage: React.FC = () => {
   const { username } = useParams<{ username: string }>();
@@ -25,8 +25,6 @@ const TipPage: React.FC = () => {
     ...mockProfile,
     username: username || mockProfile.username,
   };
-
-  const suggestedAmounts = ["1", "5", "10", "25"];
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -96,28 +94,7 @@ const TipPage: React.FC = () => {
           )}
 
           <form className="space-y-4" onSubmit={handleSubmit}>
-            <Input
-              label="Amount"
-              type="number"
-              min="1"
-              step="0.1"
-              value={amount}
-              onChange={(event) => setAmount(event.target.value)}
-            />
-
-            <div className="flex flex-wrap gap-2">
-              {suggestedAmounts.map((value) => (
-                <Button
-                  key={value}
-                  type="button"
-                  variant={amount === value ? "primary" : "outline"}
-                  size="sm"
-                  onClick={() => setAmount(value)}
-                >
-                  {value} XLM
-                </Button>
-              ))}
-            </div>
+            <TipAmountInput amount={amount} onChange={setAmount} balance={creator.balance} />
 
             <Textarea
               label="Message"
