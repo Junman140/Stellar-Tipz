@@ -42,6 +42,8 @@ pub enum DataKey {
     FeePercent,
     /// Address that receives fees
     FeeCollector,
+    /// On-chain contract version, written during initialization and bumped on each upgrade
+    ContractVersion,
     /// Lifetime fees collected
     TotalFeesCollected,
     /// Creator profile by address
@@ -130,7 +132,10 @@ pub fn set_native_token(env: &Env, addr: &Address) {
 
 /// Returns `true` when the contract is paused.
 pub fn is_paused(env: &Env) -> bool {
-    env.storage().instance().get(&DataKey::Paused).unwrap_or(false)
+    env.storage()
+        .instance()
+        .get(&DataKey::Paused)
+        .unwrap_or(false)
 }
 
 /// Sets the paused flag.
@@ -152,7 +157,9 @@ pub fn get_min_tip_amount(env: &Env) -> i128 {
 
 /// Sets the minimum allowed tip amount in stroops.
 pub fn set_min_tip_amount(env: &Env, amount: i128) {
-    env.storage().instance().set(&DataKey::MinTipAmount, &amount);
+    env.storage()
+        .instance()
+        .set(&DataKey::MinTipAmount, &amount);
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -174,6 +181,25 @@ pub fn get_admin(env: &Env) -> Address {
 /// Overwrites the admin address.
 pub fn set_admin(env: &Env, admin: &Address) {
     env.storage().instance().set(&DataKey::Admin, admin);
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Contract version
+// ──────────────────────────────────────────────────────────────────────────────
+
+/// Returns the stored contract version, or 0 if not yet initialized.
+pub fn get_version(env: &Env) -> u32 {
+    env.storage()
+        .instance()
+        .get(&DataKey::ContractVersion)
+        .unwrap_or(0)
+}
+
+/// Sets the stored contract version.
+pub fn set_version(env: &Env, version: u32) {
+    env.storage()
+        .instance()
+        .set(&DataKey::ContractVersion, &version);
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
