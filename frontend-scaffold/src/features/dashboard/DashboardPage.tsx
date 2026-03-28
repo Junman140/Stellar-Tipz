@@ -34,7 +34,7 @@ const SettingsTab: React.FC<{ profile: any }> = () => (
 );
 
 const DashboardPage: React.FC = () => {
-  usePageTitle('Dashboard');
+  usePageTitle("Dashboard");
 
   const { connected } = useWalletStore();
   const { profile, tips, stats, loading } = useDashboard();
@@ -101,23 +101,41 @@ const DashboardPage: React.FC = () => {
     {
       id: "overview",
       label: "Overview",
-      content: <OverviewTab />,
+      content: (
+        <div className="pt-6">
+          <OverviewTab />
+        </div>
+      ),
     },
     {
       id: "tips",
       label: "Tips",
-      content: <TipsTab />,
+      content: (
+        <div className="pt-6">
+          <TipsTab />
+        </div>
+      ),
     },
     {
       id: "earnings",
       label: "Earnings",
-      content: <EarningsTab profile={creator} stats={stats} loading={loading} />,
+      content: (
+        <div className="pt-6">
+          <Card padding="lg">
+            <p className="text-sm font-bold text-gray-700">
+              Earnings insights and charts will appear here once contract-backed
+              analytics are connected.
+            </p>
+          </Card>
+        </div>
+      ),
     },
     {
       id: "settings",
       label: "Settings",
       content: (
         <div className="pt-6">
+          <SettingsTab profile={profile} />
           <Card className="space-y-4" padding="lg">
             <div className="flex items-center gap-3">
               <Settings size={22} />
@@ -150,6 +168,11 @@ const DashboardPage: React.FC = () => {
             <LayoutDashboard size={32} />
             Dashboard
           </h1>
+          {profile.displayName ? (
+            <p className="mt-2 text-sm font-bold text-gray-600">
+              {profile.displayName}
+            </p>
+          ) : null}
           <p className="mt-2 text-sm font-bold text-gray-600">
             Welcome back, <span className="text-black">{creator.displayName || `@${creator.username}`}</span>
           </p>
@@ -257,7 +280,9 @@ const DashboardPage: React.FC = () => {
             <QRCode url={`https://tipz.app/@${creator.username}`} />
           </Card>
         </div>
+        <WalletConnect />
       </section>
+
       <Tabs tabs={tabs} defaultTab="overview" />
     </PageContainer>
   );
