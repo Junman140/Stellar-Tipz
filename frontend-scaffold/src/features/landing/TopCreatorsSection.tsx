@@ -17,7 +17,28 @@ export default function TopCreatorsSection() {
   const { getLeaderboard } = useContract();
   const navigate = useNavigate();
 
-  const fetchLeaderboard = useCallback(() => {
+  useEffect(() => {
+    let active = true;
+    getLeaderboard(5)
+      .then((data) => {
+        if (active) {
+          setCreators(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (active) {
+          console.error('Failed to fetch leaderboard:', err);
+          setError(String(err));
+          setLoading(false);
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [getLeaderboard]);
+
+  const handleRetry = useCallback(() => {
     setLoading(true);
     setError(null);
     getLeaderboard(5)
@@ -31,10 +52,6 @@ export default function TopCreatorsSection() {
         setLoading(false);
       });
   }, [getLeaderboard]);
-
-  useEffect(() => {
-    fetchLeaderboard();
-  }, [fetchLeaderboard]);
 
   const handleViewFullLeaderboard = () => {
     navigate('/leaderboard');
@@ -77,7 +94,7 @@ export default function TopCreatorsSection() {
         ) : error ? (
           <ErrorState 
             category={categorizeError(error)} 
-            onRetry={fetchLeaderboard}
+            onRetry={handleRetry}
           />
         ) : creators.length === 0 ? (
           <div className="border-3 border-black bg-white">

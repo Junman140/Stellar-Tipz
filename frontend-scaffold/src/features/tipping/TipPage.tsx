@@ -12,7 +12,6 @@ import Card from "../../components/ui/Card";
 import Textarea from "../../components/ui/Textarea";
 import { useWallet, useContract } from "../../hooks";
 import ErrorState from "../../components/shared/ErrorState";
-import Loader from "../../components/ui/Loader";
 import { categorizeError, ERRORS } from "@/helpers/error";
 import { Profile } from "@/types/contract";
 import TipPageSkeleton from "./TipPageSkeleton";
