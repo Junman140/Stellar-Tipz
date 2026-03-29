@@ -5,9 +5,9 @@ import {
 } from "lucide-react";
 
 import CreditBadge from "../../components/shared/CreditBadge";
-import TipCard from "../../components/shared/TipCard";
 import { StatCard } from "../../components/ui/StartCard";
 import EmptyState from "../../components/ui/EmptyState";
+import ActivityMini from "./ActivityMini";
 import QuickActions from "./QuickActions";
 import WithdrawModal from "./WithdrawModal";
 import { useDashboard } from "../../hooks/useDashboard";
@@ -152,33 +152,8 @@ const OverviewTab: React.FC = () => {
         </div>
       </section>
 
-      {/* Recent 5 tips */}
-      <section className="space-y-3">
-        <h2 className="text-lg font-black uppercase">Recent Tips</h2>
-        {tips.length === 0 ? (
-          <EmptyState
-            icon={<Coins />}
-            title="No tips yet"
-            description="Your recent tips will appear here once they start coming in."
-          />
-        ) : (
-          <div className="space-y-3">
-            {tips.slice(0, 5).map((tip) => (
-              <TipCard
-                key={`${tip.from}-${tip.timestamp}`}
-                tip={tip}
-                showReceiver={false}
-              />
-            ))}
-          </div>
-        )}
-        {tips.length > 5 && (
-          <p className="text-sm font-bold text-gray-500">
-            + {tips.length - 5} more tips — see the{" "}
-            <span className="underline cursor-pointer">Tips tab</span> for full history.
-          </p>
-        )}
-      </section>
+      {/* Mini activity feed */}
+      <ActivityMini tips={tips} />
 
       <WithdrawModal
         isOpen={withdrawOpen}
