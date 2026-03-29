@@ -82,15 +82,12 @@ export const simulateTx = async <ArgType>(
   throw new Error("cannot simulate transaction");
 };
 
-const MAX_RETRIES = 30;
-
 // Build and submits a transaction to the Soroban RPC
 // Polls for non-pending state, returns result after status is updated
 export const submitTx = async (
   signedXDR: string,
   networkPassphrase: string,
   server: SorobanRpc.Server,
-  onRetry?: (retriesRemaining: number) => void,
 ) => {
   const tx = TransactionBuilder.fromXDR(signedXDR, networkPassphrase);
 
@@ -102,7 +99,6 @@ export const submitTx = async (
 
   if (sendResponse.status === SendTxStatus.Pending) {
     let txResponse = await server.getTransaction(sendResponse.hash);
-    let retries = 0;
 
     while (
       txResponse.status === SorobanRpc.Api.GetTransactionStatus.NOT_FOUND

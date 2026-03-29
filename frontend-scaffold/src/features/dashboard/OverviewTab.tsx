@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   TrendingUp,
   Coins,
@@ -8,13 +8,18 @@ import CreditBadge from "../../components/shared/CreditBadge";
 import TipCard from "../../components/shared/TipCard";
 import { StatCard } from "../../components/ui/StartCard";
 import EmptyState from "../../components/ui/EmptyState";
-import { mockProfile, mockTips } from "../mockData";
+import { Profile, Tip } from "../../types";
 import QuickActions from "./QuickActions";
 import WithdrawModal from "./WithdrawModal";
 
-// Build a simple 7-day bar chart dataset from mock tips
-function buildWeeklyChart(tips: typeof mockTips) {
-  const days = Array.from({ length: 7 }, (_, i) => {
+interface OverviewTabProps {
+  profile: Profile;
+  tips: Tip[];
+}
+
+// Build a simple 7-day bar chart dataset from tips
+function buildWeeklyChart(tips: Tip[]) {
+  const days = Array.from({ length: 7 }, (_, i: number) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
     return {
@@ -36,7 +41,7 @@ function buildWeeklyChart(tips: typeof mockTips) {
 }
 
 // Weekly tips count (tips received in the past 7 days)
-function countThisWeek(tips: typeof mockTips) {
+function countThisWeek(tips: Tip[]) {
   const cutoff = Math.floor(Date.now() / 1000) - 7 * 24 * 60 * 60;
   return tips.filter((t) => t.timestamp >= cutoff).length;
 }
@@ -47,11 +52,11 @@ function stroopsToDisplay(stroops: string): string {
   return xlm.toLocaleString(undefined, { maximumFractionDigits: 2 });
 }
 
-const OverviewTab: React.FC = () => {
+const OverviewTab: React.FC<OverviewTabProps> = ({ profile, tips }) => {
   const [withdrawOpen, setWithdrawOpen] = useState(false);
-  const weeklyData = buildWeeklyChart(mockTips);
+  const weeklyData = useMemo(() => buildWeeklyChart(tips), [tips]);
   const maxBar = Math.max(...weeklyData.map((d) => d.total), 1);
-  const tipLink = `${window.location.origin}/@${mockProfile.username}`;
+  const tipLink = `${window.location.origin}/@${profile.username}`;
 
   return (
     <div className="space-y-8">
@@ -59,19 +64,19 @@ const OverviewTab: React.FC = () => {
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Total Earned"
-          value={`${stroopsToDisplay(mockProfile.totalTipsReceived)} XLM`}
+          value={`${stroopsToDisplay(profile.totalTipsReceived)} XLM`}
           icon={<TrendingUp size={22} />}
           change={{ value: 14, positive: true }}
         />
         <StatCard
           label="Tips This Week"
-          value={countThisWeek(mockTips)}
+          value={countThisWeek(tips).toString()}
           icon={<Coins size={22} />}
           change={{ value: 8, positive: true }}
         />
         <StatCard
           label="Current Balance"
-          value={`${stroopsToDisplay(mockProfile.balance)} XLM`}
+          value={`${stroopsToDisplay(profile.balance)} XLM`}
           icon="💰"
         />
         <div className="flex flex-col gap-2 border-4 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
@@ -79,15 +84,15 @@ const OverviewTab: React.FC = () => {
             Credit Score
           </p>
           <div className="mt-1">
-            <CreditBadge score={mockProfile.creditScore} />
+            <CreditBadge score={profile.creditScore} />
           </div>
-          <p className="mt-auto text-4xl font-black">{mockProfile.creditScore}</p>
+          <p className="mt-auto text-4xl font-black">{profile.creditScore}</p>
         </div>
       </section>
 
       {/* Quick actions */}
       <QuickActions
-        balance={mockProfile.balance}
+        balance={profile.balance}
         tipLink={tipLink}
         onWithdraw={() => setWithdrawOpen(true)}
       />
@@ -96,7 +101,7 @@ const OverviewTab: React.FC = () => {
       <section className="border-2 border-black bg-white p-6">
         <h2 className="mb-4 text-lg font-black uppercase">Tips — Last 7 Days</h2>
         <div className="flex h-32 items-end gap-2">
-          {weeklyData.map((day) => {
+          {weeklyData.map((day: { label: string; total: number }) => {
             const heightPct = Math.round((day.total / maxBar) * 100);
             return (
               <div key={day.label} className="flex flex-1 flex-col items-center gap-1">
@@ -119,7 +124,7 @@ const OverviewTab: React.FC = () => {
       {/* Recent 5 tips */}
       <section className="space-y-3">
         <h2 className="text-lg font-black uppercase">Recent Tips</h2>
-        {mockTips.length === 0 ? (
+        {tips.length === 0 ? (
           <EmptyState
             icon={<Coins />}
             title="No tips yet"
@@ -127,7 +132,7 @@ const OverviewTab: React.FC = () => {
           />
         ) : (
           <div className="space-y-3">
-            {mockTips.slice(0, 5).map((tip) => (
+            {tips.slice(0, 5).map((tip) => (
               <TipCard
                 key={`${tip.from}-${tip.timestamp}`}
                 tip={tip}
@@ -136,9 +141,9 @@ const OverviewTab: React.FC = () => {
             ))}
           </div>
         )}
-        {mockTips.length > 5 && (
+        {tips.length > 5 && (
           <p className="text-sm font-bold text-gray-500">
-            + {mockTips.length - 5} more tips — see the{" "}
+            + {tips.length - 5} more tips — see the{" "}
             <span className="underline cursor-pointer">Tips tab</span> for full history.
           </p>
         )}
@@ -146,7 +151,7 @@ const OverviewTab: React.FC = () => {
 
       <WithdrawModal
         isOpen={withdrawOpen}
-        balance={mockProfile.balance}
+        balance={profile.balance}
         feeBps={200}
         onClose={() => setWithdrawOpen(false)}
       />

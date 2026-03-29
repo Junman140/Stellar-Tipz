@@ -3,7 +3,11 @@ import React, { useMemo, useState } from "react";
 import EmptyState from "../../components/ui/EmptyState";
 import Input from "../../components/ui/Input";
 import Table from "../../components/ui/Table";
-import { mockTips } from "../mockData";
+import { Tip } from "../../types";
+
+interface TipsTabProps {
+  tips: Tip[];
+}
 
 const PAGE_SIZE = 20;
 
@@ -29,14 +33,14 @@ function truncateAddress(address: string): string {
   return `${address.slice(0, 6)}…${address.slice(-6)}`;
 }
 
-const TipsTab: React.FC = () => {
+const TipsTab: React.FC<TipsTabProps> = ({ tips }) => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [senderSearch, setSenderSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
   const filtered = useMemo(() => {
-    return mockTips.filter((tip) => {
+    return tips.filter((tip) => {
       if (startDate) {
         const start = new Date(startDate).getTime();
         if (tip.timestamp < start) return false;
@@ -51,7 +55,7 @@ const TipsTab: React.FC = () => {
       }
       return true;
     });
-  }, [startDate, endDate, senderSearch]);
+  }, [startDate, endDate, senderSearch, tips]);
 
   const totalCount = filtered.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
