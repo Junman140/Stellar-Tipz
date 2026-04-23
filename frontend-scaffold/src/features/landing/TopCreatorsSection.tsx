@@ -111,9 +111,7 @@ export default function TopCreatorsSection() {
         {loading ? (
           <div className="flex gap-6 overflow-hidden pb-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="w-64 flex-shrink-0">
-                <Skeleton variant="rect" height="200px" />
-              </div>
+              <ProfileCardSkeleton key={i} variant="compact" />
             ))}
           </div>
         ) : error ? (
